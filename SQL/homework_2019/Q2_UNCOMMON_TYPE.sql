@@ -1,0 +1,1 @@
+select type, primary_title,MAX(runtime_minutes) FROM titles GROUP BY type ORDER BY type, primary_title;

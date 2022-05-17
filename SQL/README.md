@@ -1,0 +1,39 @@
+# 结构化查询语言(Structured Query Language SQL)
+
+本说明内容源于教材 [数据库系统概念](extension://idghocbbahafpfhjnfhpbfbmpegphmmp/assets/pdf/web/viewer.html?file=https%3A%2F%2Fhuang1111.sharepoint.cn%2Fsites%2Fstudy%2F_layouts%2F15%2Fdownload.aspx%3FUniqueId%3D9e9eea97-7d0f-41fe-984e-d0a751083974%26Translate%3Dfalse%26tempauth%3DeyJ0eXAiOiJKV1QiLCJhbGciOiJub25lIn0.eyJhdWQiOiIwMDAwMDAwMy0wMDAwLTBmZjEtY2UwMC0wMDAwMDAwMDAwMDAvaHVhbmcxMTExLnNoYXJlcG9pbnQuY25ANTM3ZDkyODItY2M0YS00YWY2LThjZTMtN2EzYWVjZDRlN2RkIiwiaXNzIjoiMDAwMDAwMDMtMDAwMC0wZmYxLWNlMDAtMDAwMDAwMDAwMDAwIiwibmJmIjoiMTY1Mjc5MTcyNiIsImV4cCI6IjE2NTI3OTUzMjYiLCJlbmRwb2ludHVybCI6Im81bks4L1paYXVTeDBjRXpLNGtRZFNCRDRlVDkwWWQ5VURzbWlUTE9LRzQ9IiwiZW5kcG9pbnR1cmxMZW5ndGgiOiIxMzEiLCJpc2xvb3BiYWNrIjoiVHJ1ZSIsImNpZCI6IlpHSTRPVFUyWm1VdFpURTJPQzAwWVdJekxUZzRZVEV0Wm1OaVpUVm1PRFpsTkRjNCIsInZlciI6Imhhc2hlZHByb29mdG9rZW4iLCJzaXRlaWQiOiJaR1UwWm1ZNU5ESXRZVEUxTXkwME16TXdMVGxtWkRFdE9XWTFOVEZrWldNeVl6UTUiLCJhcHBfZGlzcGxheW5hbWUiOiJ0Z0I0YSIsImFwcGlkIjoiODEzNDQ2MzItOGFiOC00YzQ1LTliMTQtZjkwNTA5YThhOGRjIiwidGlkIjoiNTM3ZDkyODItY2M0YS00YWY2LThjZTMtN2EzYWVjZDRlN2RkIiwidXBuIjoibWtAaHVhbmcxMTExLnBhcnRuZXIub25tc2NoaW5hLmNuIiwicHVpZCI6IjEwMDMzMjMwQzVFNDgxNTUiLCJjYWNoZWtleSI6IjBoLmZ8bWVtYmVyc2hpcHwxMDAzMzIzMGM1ZTQ4MTU1QGxpdmUuY29tIiwic2NwIjoiYWxsZmlsZXMud3JpdGUgYWxsc2l0ZXMud3JpdGUiLCJ0dCI6IjIiLCJ1c2VQZXJzaXN0ZW50Q29va2llIjpudWxsLCJpcGFkZHIiOiI0MC43Mi43NC4xOTIifQ.ejNOd1VxUWlNNGV1N1IzcVRUajB1eUdnWDBiWnNaT21vanFhNmxweWhTTT0%26ApiVersion%3D2.0)，选择性地对2-5章节的部分内容进行记录说明。
+
+## 多关系查询
+问题背景：首先考虑这样的查询 "找出所有教师的姓名及其所在系的名称和系所在建筑的名称"
+
+解决思路：
+
+教师的关系模式为
+```sql
+instructor(ID,name,dept_name,salary)
+```
+其中不包含建筑名称，而建筑名称的属性在`department`表中，其关系模型为
+```sql
+department(dept_name, building, buget)
+```
+因此我们需要将两个关系联合起来进行查询。一般的思路是，查询到`instructor`的`dept_name`属性，然后根据该属性在`department`中查询`building`属性。为了满足查询的需求，`instructor`关系中的元组必须通过`dept_name`属性与`department`关系中的元组匹配。因此该查询的语句可以写为：
+```sql
+SELECT name, instructor.dept_name, building FROM instructor, department WHERE instructor.dept_name = department.dept_name;
+```
+对于两个关系模式中共用的属性`dept_name`通过关系名称进行区别
+
+该查询语句相当于执行了以下操作：
+```
+for each 元组t1 in 关系instructor：
+    for each 元组t2 in 关系department：
+        将t1、t2连接成单个元组t
+        对元组t执行条件语句 instructor.dept_name = department.dept_name
+```
+即在`instructor`与`department`笛卡尔积的结果(将两个关系结合为一个)执行条件查询。
+
+对于多关系查询语句，其进行的操作可总结如下：
+
+1、为FROM子句列出的关系产生笛卡尔积
+
+2、在步骤1的结果上应用WHERE子句中指定的谓词
+
+3、对于步骤2结果中的每个元组，输出select子句中指定的属性或表达式结果
