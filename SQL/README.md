@@ -271,3 +271,92 @@ SELECT * FROM students LEFT OUTER JOIN takes ON student.ID = takes.ID;
 
 同时对于`JOIN ON`的条件与`WHERE`子句的条件也需要加以区分，这两个表示的不是相同的条件，外连接只会为那些对相应内连接结果没有贡献的元组加上空值，并将其加入结果。`ON`是外连接的一部分，而`WHERE`则是对外连接结果进行筛选。如`students.ID = takes.ID`条件，`ON`会对满足该条件的元组进行连接，而对于takes中没有的但是在students中有的元组将其将takes中的属性置为空值，然后将student中的元组与空值takes元组连接起来。但是WHERE则会对条件进行筛选，只有ID值同时在students与takes中出现的元组才满足该条件。
 
+
+## 视图
+
+#### 什么是视图？
+
+其定义为:不是逻辑关系的一部分，但作为虚关系对用户可见的关系称为视图，简单来说视图就是一个由查询关系定义的虚拟表。
+
+#### 为什么需要视图？
+
+1. 视图可以隐藏一些数据，确保数据的安全；
+2. 视图可以简化查询方法，使得查询易于理解和使用；
+
+视图定义的命令格式：
+```sql
+-- 该命令通过查询语句query expression创建了一个名为v的视图
+CREATE VIEW v AS <query expression>
+
+-- 该语句通过select语句创建了一个包含属性ID, name, dept_name的名为faculty的视图
+CREATE VIEW faculty AS SELECT ID, name, dept_name FROM instructor;
+
+-- 也可以显式地指定视图的属性
+CREATE VIEW faculty(ID, name, dept_name AS dn) AS SELECT ID, name, dept_name FROM instructor;
+```
+
+执行了视图创建命令后，该视图在概念上包含了查询结果中的元组，但是并不会进行预计算和存储。视图与表之间存在着一种虚关系，只有当需要使用的时候（在视图上使用查询语句时），视图中的元组才会被实际的计算出来。一个视图也能够用于定义其他的视图。
+
+
+#### 可以对视图进行修改吗？（执行插入、删除、更新语句）
+对视图的更改必须被翻译为对实际存在的关系中的元组的更改，这就要求翻译的过程与结果不能够出错，在此基础上提出了几点对于修改视图的要求，当视图满足以下要求时才可以进行更改：
+```
+1、FROM子句中只有一个数据库关系
+2、SELECT子句中只包含关系的属性名，不包含任何表达式、聚集、DISTINCT声明
+3、任何没有出现在SELECT子句中的属性可以取空值
+4、查询中不含有GROUP BY或HAVING子句
+```
+最好还是不要在视图上对数据进行更改。
+
+
+
+## 事务
+
+#### 什么是事务？
+事务(transaction)由查询和(或)更新语句的序列组成。一条SQL语句就是一个最简单的事务。
+
+事务最经典的特征就是原子性即要么执行要么不执行，不会存在执行过程中被终止的情况。
+
+SQL语句(MySQL)中的事务定义方式：
+```sql
+BEGIN;
+<query expression>
+END;
+```
+
+
+## 完整性约束
+
+完整性约束保证了用户对数据库关系中的元组的更改不会破坏数据的一致性(从一个有效的状态转移到另一个有效的状态，即改变不会使数据元组变得不合法)。
+
+以本书的数据库中的相关关系为例，一致性就是指：
+```
+教师的姓名不能为Null                                            not null约束
+
+任意两个教师不能有相同的教师标识                                 unique约束
+
+course关系中每个系的名称必须在department关系中有一个对应的系名    参照完整性
+
+一个系的预算必须大于0.00元                                      check子句
+
+```
+在创建数据库关系时一般都已经通过`CREATE`语句指定了完整性约束，同时也可以通过`ALERT TABLE table-name ADD coonstraint`语句添加相关的约束。
+
+各种约束的声明格式如下：
+```sql
+-- not null约束
+name varchar(20) not null
+budget numeric(12, 2) not null
+
+-- unique约束 标明没有那两个元组的(A1, A2, ..., An)属性组合是相同的
+unique (A1, A2, ..., An)
+
+-- check子句，括号内是一个条件表达式
+check(budget>0)
+
+-- 参照完整性 保证一个关系内的取值也在另一个关系的特定属性集的取值中出现
+-- 这是一个外码声明，一般情况下外码使用的是另一个关系中的主码
+FOREIGN KEY(dept_name) REFERENCES department 
+-- 每个元组的属性dept_name必须在department关系中存在
+
+```
