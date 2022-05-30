@@ -7,3 +7,11 @@ Find the titles which are the longest by runtime minutes. There might be cases w
 
 
 在title表中，根据type的不同，分别选出runtime minutes最大的元组(允许并列)列出其type、primary titles、runtime minutes，根据type对所有结果进行排序，primary titles作为排序的最终决断项。
+
+
+## Q3_TV_VS_MOVIE
+List all types of titles along with the number of associated titles.
+
+Print type and number of associated titles. For example, tvShort|4075. Sort by number of titles in ascending order.
+
+在title表中，打印出不同type属性的元组的type及其数量，按照数量的升序排列

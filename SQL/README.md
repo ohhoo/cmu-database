@@ -380,7 +380,7 @@ set CONSTRAINTS constraint-list DEFERRED
 或者可以通过设置外键为null来规避对约束的违反，但是这样会需要对该外键的值进行更改，这可能会需要增加额外的SQL语句执行更新操作。
 
 
-#### 复杂check条件于断言
+#### 复杂check条件与断言
 check子句中的谓词可以是包含子查询的任意谓词，如下：
 
 ```sql
@@ -391,3 +391,28 @@ check (time_slot_id in (SELECT time_slot_id FROM time_slot))
 复杂的check语句在确保数据完整性方面起到了很大的作用，但是它却会增加检测的开销。
 
 
+一个断言就是一个谓词(谓词是指返回值是逻辑值的函数)，在SQL中断言的形式如下：
+```sql
+CREATE ASSERTION <assertion-name> CHECK <predicate>
+
+-- 例如,
+CREATE ASSERTION credits_earned_constraint CHECK (NOT EXISTS (SELECT ID FROM student WHERE tot_cred <> (SELECT SUM(credits) FROM takes NATURAL JOIN COURSE WHERE student.ID = takes.ID AND grade IS NOT NULL AND grade <> 'F')))
+```
+断言建立后，只有满足断言条件的修改才会被数据库所接受
+
+## 数据类型与模式
+常见的数据类型包括日期(date、time、timestamp)、大对象类型(clob)、二进制数据的大对象数据类型(blob)，同时还支持用户自定义数据类型，定义的SQL语句如下：
+```sql
+定义了一个总共12位的十进制数，并且其中两位为小数点之后的，FINAL并不是必须的，在某些数据库中可以省略
+CREATE TYPE Dollars AS NUMERIC(12, 2) FINAL; 
+```
+#### 索引
+什么是索引？
+
+索引是一种特殊的文件，包含着对数据表中所有元组的引用指针。它实际上就是一种数据结构(例如B+树)，他的作用是可以高效地找到关系中那些在索引属性上取给定值的元组，而不用扫描所有的元组。
+创建索引的语法如下：
+```sql
+-- 在student关系的ID属性上创建了名为studentID_index的索引
+CREATE INDEX studentID_index ON student(ID);
+```
+如果在查询时能够使用索引，那么SQL查询处理器就会优先使用索引，这样会加快查询速度。
