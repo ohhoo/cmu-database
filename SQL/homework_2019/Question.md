@@ -37,3 +37,18 @@ List the top 10 dubbed titles with the number of dubs.
 Count the number of titles in akas for each title in the titles table, and list only the top ten. Print the primary title and the number of corresponding dubbed movies.
 
 列出titles表中的电影在akas表中配音数量最多的前十个记录的primary_title、配音数量，按照配音数量的降序排列
+
+
+
+
+## Q8_NUMBER_OF_ACTORS
+
+List the number of actors / actresses who have appeared in any title with Mark Hamill (born in 1951).
+
+列出曾与Mark Hamill同台演出的演员的个数(包括他自己)
+
+## Q9_MOVIE_NAMES
+
+List the movies in alphabetical order which cast both Mark Hamill (born in 1951) and George Lucas (born in 1944).
+
+列出Mark Hamill与George Lucas合作的电影名称（按照字母顺序排序）。
